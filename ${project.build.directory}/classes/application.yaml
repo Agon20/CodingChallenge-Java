@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: CodingChallenge-Java
+  datasource:
+    url: jdbc:postgresql://localhost:5432/insurance
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

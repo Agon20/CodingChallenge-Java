@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versicherungsprämie berechnen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #003c71;
+            --primary-dark: #002a52;
+            --primary-light: #0a5299;
+            --accent: #f5b731;
+            --accent-hover: #e5a820;
+            --accent-light: #fef4dc;
+            --bg: #f3f5f9;
+            --card: #ffffff;
+            --text: #1a2332;
+            --text-muted: #5f6d7e;
+            --border: #e1e5eb;
+            --success: #0d8a4a;
+            --success-bg: #edf8f2;
+            --error: #c0392b;
+            --error-bg: #fdf0ef;
+            --error-border: #f0c6c1;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--primary);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 60, 113, 0.15);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .navbar-logo {
+            width: 32px; height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.1rem; color: var(--primary-dark);
+        }
+
+        .navbar-title { color: #fff; font-weight: 700; font-size: 1.05rem; }
+        .navbar-title span { color: var(--accent); }
+
+        .navbar-links { display: flex; align-items: center; gap: 1.5rem; }
+        .navbar-links a {
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 0.85rem; font-weight: 500; transition: color 0.2s;
+        }
+        .navbar-links a:hover { color: #fff; }
+        .navbar-links .btn-nav {
+            background: var(--accent); color: var(--primary-dark);
+            padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600;
+            transition: background 0.2s;
+        }
+        .navbar-links .btn-nav:hover { background: var(--accent-hover); }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 3.5rem 2rem 4.5rem; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -25%;
+            width: 150%; height: 200%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(245,183,49,0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero h1 {
+            font-size: 2rem; font-weight: 800; color: #fff;
+            letter-spacing: -0.03em; margin-bottom: 0.6rem; position: relative;
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero p {
+            font-size: 1rem; color: rgba(255,255,255,0.7);
+            max-width: 500px; margin: 0 auto; line-height: 1.6; position: relative;
+        }
+
+        .badges {
+            display: flex; justify-content: center; gap: 1.5rem;
+            margin-top: 1.5rem; position: relative;
+        }
+        .badge {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.75rem; color: rgba(255,255,255,0.6); font-weight: 500;
+        }
+        .badge-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+        }
+
+        .main {
+            max-width: 960px; margin: -2.5rem auto 3rem;
+            padding: 0 1.5rem; position: relative; z-index: 1;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+        }
+
+        .card-header {
+            display: flex; align-items: center; gap: 0.6rem;
+            margin-bottom: 1.6rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+        }
+        .card-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        }
+        .card-icon.form-icon { background: var(--accent-light); color: var(--accent-hover); }
+        .card-icon.result-icon { background: var(--success-bg); color: var(--success); }
+        .card-title { font-size: 1rem; font-weight: 700; }
+        .card-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+
+        .field { margin-bottom: 1.2rem; }
+        label {
+            display: block; font-size: 0.78rem; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 0.45rem;
+        }
+        input, select {
+            width: 100%; padding: 0.7rem 0.9rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem; font-weight: 500;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            background: #fafbfc; color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(0,60,113,0.08); background: #fff;
+        }
+        input::placeholder { color: #b0b8c4; }
+        select {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235f6d7e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 0.9rem center;
+            padding-right: 2.5rem;
+        }
+
+        .btn {
+            display: block; width: 100%; padding: 0.8rem; margin-top: 0.4rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem; font-weight: 700;
+            color: var(--primary-dark); background: var(--accent);
+            border: none; border-radius: 8px; cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .result-panel { display: flex; flex-direction: column; justify-content: center; }
+
+        .result-empty { text-align: center; padding: 2rem 1rem; color: var(--text-muted); }
+        .result-empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; opacity: 0.3; }
+        .result-empty p { font-size: 0.85rem; line-height: 1.5; }
+
+        .result-filled { display: none; }
+        .result-filled.visible { display: block; animation: slideUp 0.4s ease; }
+
+        .premium-display {
+            text-align: center; padding: 1.5rem 0; margin-bottom: 1.2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 10px;
+        }
+        .premium-label {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.6); font-weight: 600; margin-bottom: 0.3rem;
+        }
+        .premium-value {
+            font-size: 2.8rem; font-weight: 800; color: var(--accent);
+            letter-spacing: -0.03em; line-height: 1;
+        }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+        .detail-item {
+            background: #fafbfc; border: 1px solid var(--border);
+            border-radius: 8px; padding: 0.7rem; text-align: center;
+        }
+        .detail-label {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--text-muted); font-weight: 600; margin-bottom: 0.2rem;
+        }
+        .detail-value { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+
+        .result-id {
+            margin-top: 1rem; text-align: center;
+            font-size: 0.75rem; color: var(--text-muted);
+        }
+        .result-id span { font-weight: 600; color: var(--success); }
+
+        .error {
+            margin-top: 1rem; padding: 0.8rem 1rem; border-radius: 8px;
+            background: var(--error-bg); border: 1px solid var(--error-border);
+            color: var(--error); font-size: 0.82rem; font-weight: 500; display: none;
+        }
+        .error.visible { display: block; animation: slideUp 0.3s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer {
+            text-align: center; padding: 1.5rem; font-size: 0.75rem;
+            color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 1rem;
+        }
+        .footer a { color: var(--primary-light); text-decoration: none; font-weight: 600; }
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <div class="navbar-logo">VP</div>
+        <div class="navbar-title">Versicherungs<span>Prämie</span></div>
+    </a>
+    <div class="navbar-links">
+        <a href="/swagger-ui/index.html" target="_blank">API Docs</a>
+        <a href="/swagger-ui/index.html" target="_blank" class="btn-nav">Swagger UI</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <h1>Ihre <span>Kfz-Versicherungsprämie</span> berechnen</h1>
+    <p>Geben Sie Ihre Daten ein und erhalten Sie sofort eine Schätzung Ihrer Versicherungsprämie.</p>
+    <div class="badges">
+        <div class="badge"><div class="badge-dot"></div>Schnell</div>
+        <div class="badge"><div class="badge-dot"></div>Transparent</div>
+        <div class="badge"><div class="badge-dot"></div>Unverbindlich</div>
+    </div>
+</section>
+
+<div class="main">
+    <div class="grid">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon form-icon">📋</div>
+                <div>
+                    <div class="card-title">Angaben</div>
+                    <div class="card-subtitle">Fahrzeug- und Zulassungsdaten</div>
+                </div>
+            </div>
+            <div class="field">
+                <label for="postalCode">Postleitzahl der Zulassung</label>
+                <input type="text" id="postalCode" placeholder="z.B. 10115" maxlength="5" inputmode="numeric">
+            </div>
+            <div class="field">
+                <label for="annualMileage">Geschätzte Jahreskilometer</label>
+                <input type="number" id="annualMileage" placeholder="z.B. 15000" min="0">
+            </div>
+            <div class="field">
+                <label for="vehicleType">Fahrzeugtyp</label>
+                <select id="vehicleType">
+                    <option value="" disabled selected>Bitte wählen</option>
+                    <option value="PKW">PKW</option>
+                    <option value="MOTORRAD">Motorrad</option>
+                    <option value="LKW">LKW</option>
+                    <option value="ELEKTROAUTO">Elektroauto</option>
+                </select>
+            </div>
+            <button class="btn" id="calculateBtn" onclick="calculate()">Prämie berechnen</button>
+            <div class="error" id="error"></div>
+        </div>
+
+        <div class="card result-panel">
+            <div class="card-header">
+                <div class="card-icon result-icon">📊</div>
+                <div>
+                    <div class="card-title">Ergebnis</div>
+                    <div class="card-subtitle">Ihre berechnete Versicherungsprämie</div>
+                </div>
+            </div>
+            <div class="result-empty" id="resultEmpty">
+                <div class="result-empty-icon">🛡️</div>
+                <p>Füllen Sie das Formular aus und klicken Sie auf<br><strong>„Prämie berechnen"</strong></p>
+            </div>
+            <div class="result-filled" id="resultFilled">
+                <div class="premium-display">
+                    <div class="premium-label">Geschätzte Prämie</div>
+                    <div class="premium-value" id="premiumValue"></div>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">PLZ</div>
+                        <div class="detail-value" id="detailPlz"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">KM/Jahr</div>
+                        <div class="detail-value" id="detailKm"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fahrzeug</div>
+                        <div class="detail-value" id="detailType"></div>
+                    </div>
+                </div>
+                <div class="result-id" id="resultId"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    Coding Challenge · Spring Boot + PostgreSQL · <a href="/swagger-ui/index.html" target="_blank">API-Dokumentation</a>
+</div>
+
+<script>
+    async function calculate() {
+        const postalCode = document.getElementById('postalCode').value.trim();
+        const annualMileage = document.getElementById('annualMileage').value;
+        const vehicleType = document.getElementById('vehicleType').value;
+        const btn = document.getElementById('calculateBtn');
+        const errorDiv = document.getElementById('error');
+        const resultEmpty = document.getElementById('resultEmpty');
+        const resultFilled = document.getElementById('resultFilled');
+
+        errorDiv.classList.remove('visible');
+        resultFilled.classList.remove('visible');
+        resultEmpty.style.display = 'block';
+
+        if (!postalCode || !annualMileage || !vehicleType) {
+            errorDiv.textContent = 'Bitte alle Felder ausfüllen.';
+            errorDiv.classList.add('visible');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Berechne\u2026';
+
+        try {
+            const response = await fetch('/api/applications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    postalCode: postalCode,
+                    annualMileage: parseInt(annualMileage),
+                    vehicleTypeFactor: vehicleType
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Fehler bei der Berechnung');
+            }
+
+            document.getElementById('premiumValue').textContent = data.premium;
+            document.getElementById('detailPlz').textContent = postalCode;
+            document.getElementById('detailKm').textContent = parseInt(annualMileage).toLocaleString('de-DE');
+            document.getElementById('detailType').textContent = vehicleType;
+            document.getElementById('resultId').innerHTML =
+                ' \u00b7 Antrag gespeichert \u00b7 ';
+
+            resultEmpty.style.display = 'none';
+            resultFilled.classList.add('visible');
+
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.add('visible');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Pr\u00e4mie berechnen';
+        }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') calculate();
+    });
+</script>
+
+</body>
+</html>
