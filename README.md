@@ -7,6 +7,7 @@ Anwendung zur Berechnung von Kfz-Versicherungsprämien basierend auf Kilometerle
 - [Architektur](#architektur)
 - [Projektstruktur](#projektstruktur)
 - [Technologie-Stack](#technologie-stack)
+- [Prämienberechnung](#prämienberechnung)
 - [Anwendung starten](#anwendung-starten)
 - [API-Endpunkte](#api-endpunkte)
 - [Tests](#tests)
@@ -92,6 +93,51 @@ src/main/java/com/example/codingchallengejava/
 | Swagger / OpenAPI | API-Dokumentation |
 | Docker Compose | PostgreSQL-Container |
 
+## Prämienberechnung
+
+Formel: `Kilometerleistung-Faktor × Fahrzeugtyp-Faktor × Region-Faktor`
+
+### Kilometerleistung-Faktoren
+
+| Kilometerleistung | Faktor |
+|-------------------|--------|
+| 0 – 5.000 km | 0.5 |
+| 5.001 – 10.000 km | 1.0 |
+| 10.001 – 20.000 km | 1.5 |
+| ab 20.001 km | 2.0 |
+
+### Fahrzeugtyp-Faktoren
+
+| Fahrzeugtyp | Wert | Faktor |
+|-------------|------|--------|
+| PKW | `PKW` | 1.0 |
+| Motorrad | `MOTORRAD` | 1.3 |
+| LKW | `LKW` | 1.8 |
+| Elektroauto | `ELEKTROAUTO` | 0.9 |
+
+### Region-Faktoren (Bundesland)
+
+| Bundesland | Faktor |
+|------------|--------|
+| Berlin | 1.5 |
+| Hamburg | 1.4 |
+| Nordrhein-Westfalen | 1.3 |
+| Bremen | 1.3 |
+| Bayern | 1.2 |
+| Baden-Württemberg | 1.1 |
+| Hessen | 1.1 |
+| Niedersachsen | 1.0 |
+| Rheinland-Pfalz | 1.0 |
+| Saarland | 1.0 |
+| Sachsen | 1.0 |
+| Schleswig-Holstein | 1.0 |
+| Brandenburg | 0.9 |
+| Sachsen-Anhalt | 0.9 |
+| Thüringen | 0.9 |
+| Mecklenburg-Vorpommern | 0.8 |
+
+Die regionale Zuordnung erfolgt über die Postleitzahl. Der PostcodeLoader liest die CSV beim Start ein und mappt jede Postleitzahl auf das zugehörige Bundesland.
+
 ## Anwendung starten
 
 ### Voraussetzungen
@@ -171,15 +217,6 @@ Response:
   "premium": 1.5
 }
 ```
-
-### Fahrzeugtypen
-
-| Typ | Wert |
-|-----|------|
-| PKW | `PKW` |
-| Motorrad | `MOTORRAD` |
-| LKW | `LKW` |
-| Elektroauto | `ELEKTROAUTO` |
 
 ## Tests
 
